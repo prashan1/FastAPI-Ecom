@@ -16,6 +16,17 @@ GET_DETAIL_CLEANING_QUERY = """
     SELECT * FROM cleanings where id = :cleaning_id;
 """
 
+UPDATE_CLEANING_QUERY = """
+    UPDATE cleanings
+    SET 
+        name = COALESCE(:name, name),
+        description = COALESCE(:description, description),
+        price = COALESCE(:price, price),
+        cleaning_type = COALESCE(:cleaning_type, cleaning_type)
+    WHERE id = :id
+    RETURNING id, name, description, price, cleaning_type;
+"""
+
 
 class CleaningsRepository(BaseRepository):
     
@@ -28,4 +39,10 @@ class CleaningsRepository(BaseRepository):
     async def create_cleaning(self, *, new_cleaning: CleaningCreate) -> CleaningInDB:
         query_values = new_cleaning.dict()
         cleaning = await self.db.fetch_one(query=CREATE_CLEANING_QUERY, values=query_values)
+        return CleaningInDB(**cleaning)
+    
+    async def update_cleaning(self, *, id: int, cleaning_update: CleaningCreate) -> CleaningInDB:
+        query_values = cleaning_update.dict(exclude_unset=True)
+        query_values['id'] = id
+        cleaning = await self.db.fetch_one(query=UPDATE_CLEANING_QUERY, values=query_values)
         return CleaningInDB(**cleaning)
