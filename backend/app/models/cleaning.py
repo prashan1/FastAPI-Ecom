@@ -13,10 +13,10 @@ class CleaningBase(CoreModel):
     name: Optional[str]
     price: Optional[float]
     description: Optional[str]
-    cleaning_type: Optional[CleaningType] = 'spot_clean'
+    cleaning_type: Optional[CleaningType] = CleaningType.spot_clean
 
 
-class CleaningCreate(CoreModel):
+class CleaningCreate(CleaningBase):
     name: str
     price: float
     
